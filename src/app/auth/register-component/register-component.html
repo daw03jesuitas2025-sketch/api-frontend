@@ -1,0 +1,119 @@
+<div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-light py-5">
+  <div class="row w-100 justify-content-center">
+    <div class="col-11 col-sm-10 col-md-8 col-lg-5 col-xl-4">
+
+
+      @if(successMessage()) {
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        {{successMessage()}}
+        <button type="button" class="btn-close" (click)="successMessage.set('')"></button>
+      </div>
+      }
+
+      <!-- Card principal -->
+      <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-body p-4 p-md-5">
+
+          <!-- Logo y título -->
+          <div class="text-center mb-4">
+            <img src="https://i.imgur.com/cvd8Ier.png" alt="Change.org" width="150" class="mb-3">
+            <h2 class="fw-bold mb-2">Únete a Change.org</h2>
+            <p class="text-muted">Crea tu cuenta y comienza a generar cambios</p>
+          </div>
+
+          <!-- Mensaje de error -->
+          @if(errorMessage()) {
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            {{errorMessage()}}
+            <button type="button" class="btn-close" (click)="errorMessage.set('')"></button>
+          </div>
+          }
+
+          <!-- Formulario -->
+          <form (ngSubmit)="register()">
+
+            <!-- Nombre -->
+            <div class="mb-3">
+              <label for="name" class="form-label fw-semibold">
+                <i class="bi bi-person me-1"></i>Nombre completo
+              </label>
+              <input type="text" class="form-control form-control-lg" id="name" [(ngModel)]="formData.name" name="name"
+                placeholder="Juan Pérez" required autocomplete="name">
+            </div>
+
+            <!-- Email -->
+            <div class="mb-3">
+              <label for="email" class="form-label fw-semibold">
+                <i class="bi bi-envelope me-1"></i>Correo electrónico
+              </label>
+              <input type="email" class="form-control form-control-lg" id="email" [(ngModel)]="formData.email"
+                name="email" placeholder="tu@email.com" required autocomplete="email">
+            </div>
+
+            <!-- Contraseña -->
+            <div class="mb-3">
+              <label for="password" class="form-label fw-semibold">
+                <i class="bi bi-lock me-1"></i>Contraseña
+              </label>
+              <input type="password" class="form-control form-control-lg" id="password" [(ngModel)]="formData.password"
+                name="password" placeholder="Mínimo 6 caracteres" required minlength="6" autocomplete="new-password">
+              <div class="form-text small">
+                <i class="bi bi-info-circle me-1"></i>
+                La contraseña debe tener al menos 6 caracteres
+              </div>
+            </div>
+
+            <!-- Términos y condiciones -->
+            <div class="form-check mb-4">
+              <input class="form-check-input" type="checkbox" id="terms" required>
+              <label class="form-check-label small" for="terms">
+                Acepto los
+                <a href="#" class="text-primary">Términos y Condiciones</a>
+                y la
+                <a href="#" class="text-primary">Política de Privacidad</a>
+              </label>
+            </div>
+
+            <!-- Botón submit -->
+            <button type="submit" class="btn btn-primary w-100 py-3 fw-bold fs-5 mb-3"
+              [disabled]="!formData.name || !formData.email || !formData.password || formData.password.length < 6 || isLoading()">
+              @if(isLoading()) {
+              <span class="spinner-border spinner-border-sm me-2"></span>
+              Creando cuenta...
+              } @else {
+              Crear cuenta
+              }
+            </button>
+
+            <!-- Divider -->
+            <div class="position-relative my-4">
+              <hr>
+            </div>
+
+          </form>
+
+          <!-- Link a login -->
+          <div class="text-center mt-4">
+            <p class="text-muted mb-0">
+              ¿Ya tienes una cuenta?
+              <a [routerLink]="['/login']" class="text-primary fw-semibold text-decoration-none">
+                Inicia sesión aquí
+              </a>
+            </p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Link volver al inicio -->
+      <div class="text-center mt-3">
+        <a [routerLink]="['/']" class="text-muted text-decoration-none">
+          <i class="bi bi-arrow-left me-1"></i>Volver al inicio
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>

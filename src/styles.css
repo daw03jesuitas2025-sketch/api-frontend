@@ -1,0 +1,122 @@
+body {
+    background-size: cover;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    overflow-x: hidden;
+}
+
+/* ========================== */
+/* HEADER CHANGE.ORG     */
+/* ========================== */
+
+nav.navbar {
+    border-bottom: 1px solid #e5e5e5;
+    padding: 6px 0;
+}
+
+/* ========================== */
+/* HERO – TITLES + BUTTONS    */
+/* ========================== */
+
+.main-section {
+    text-align: center;
+    padding: 100px 20px 60px;
+    color: #202124;
+    position: relative;
+    z-index: 2;
+    background: url('https://static.change.org/homepageV3/background-globe-sunrise.svg') no-repeat center top;
+
+}
+
+.main-section h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.main-section h1::after {
+    content: ".";
+    color: #e63946;
+}
+
+.main-section p {
+    font-size: 1.2rem;
+    margin-top: 20px;
+    color: #333;
+}
+
+.main-section p span {
+    font-weight: 700;
+}
+
+.btn-yellow {
+    background-color: #ffd900;
+    color: #202124;
+    font-weight: 600;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 10px;
+    margin-right: 10px;
+}
+
+.btn-outline {
+    border: 2px solid #dcdcdc;
+    color: #202124;
+    font-weight: 600;
+    padding: 12px 30px;
+    border-radius: 10px;
+    background-color: white;
+}
+
+/* ========================== */
+/* BURBUJAS REDONDAS          */
+/* ========================== */
+
+.petition-grid {
+    position: relative;
+    height: 450px;
+}
+
+.petition-card {
+    text-align: center;
+    width: 180px;
+    position: absolute;
+}
+
+.petition-card img {
+    width: 180px;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 4px solid #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.22);
+}
+
+.petition-card .status {
+    font-weight: 700;
+    color: #fff;
+    background-color: #c6c7c8;
+    border-radius: 25px;
+    padding: 6px 22px;
+    margin-top: 10px;
+    font-size: 0.9rem;
+}
+
+.petition-card .status::before {
+    content: "● ";
+    color: #e63946;
+}
+
+.petition-card small {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.85rem;
+    color: #333;
+}
+
+/* POSICIONES EXACTAS */
+.petition-1 { top: -380px; left: 11%; }
+.petition-2 { top: -380px; right: 11%; }
+.petition-3 { top: -40px; left: 15%; }
+.petition-4 { top: -40px; right: 15%; }
+.petition-5 { top: 110px; left: 42%; }
+

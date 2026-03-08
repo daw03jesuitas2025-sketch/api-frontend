@@ -1,0 +1,150 @@
+<section class="py-5 bg-light">
+  <div class="container">
+
+    @if (loading()) {
+    <div class="text-center py-5">
+      <div class="spinner-border" role="status"></div>
+      <p class="mt-3 text-muted">Cargando petición...</p>
+    </div>
+    } @else {
+
+    @if (!peticion()) {
+    <div class="alert alert-danger">
+      Petición no encontrada.
+    </div>
+    <a routerLink="/peticiones" class="btn btn-outline-secondary">
+      ← Volver a peticiones
+    </a>
+    } @else {
+
+    <div class="mb-4">
+      <a routerLink="/peticiones" class="text-decoration-none text-secondary">
+        &larr; Volver a todas las peticiones
+      </a>
+    </div>
+
+    <div class="row">
+
+      <div class="col-lg-8">
+
+        <h1 class="fw-bold mb-4" style="color:#2d2b31;">
+          {{ peticion()!.title }}
+        </h1>
+
+        @if (currentUserId() && esPropioPropietario()) {
+        <div class="d-flex gap-2 mb-4">
+          <a class="btn btn-warning text-dark fw-bold" [routerLink]="['/peticiones/editar', peticion()!.id]"> Editar
+            petición
+          </a>
+          <button type="button" class="btn btn-outline-danger fw-bold" (click)="delete()">
+            Eliminar
+          </button>
+        </div>
+        }
+        <!--         mostrar todas las imágenes en una cuadrícula-->
+        <div class="mb-4">
+          @if (peticion()?.files && peticion()?.files?.length! > 0) {
+          <div class="row g-3">
+            @for (file of peticion()?.files; track file.id) {
+            <div class="col-12 col-md-6">
+              <div class="rounded overflow-hidden shadow-sm border bg-white h-100">
+                <img [src]="'http://localhost:8000/storage/' + file.file_path" class="img-fluid w-100"
+                  style="height: 300px; object-fit: cover;" alt="Imagen de la petición" />
+                <div class="p-2 bg-white text-center border-top">
+                  <small class="text-muted text-truncate d-block">{{ file.name }}</small>
+                </div>
+              </div>
+            </div>
+            }
+          </div>
+          } @else {
+          <div class="rounded overflow-hidden shadow-sm border mb-4">
+            <img src="assets/no-image.png" class="w-100" style="max-height: 420px; object-fit: cover;"
+              alt="Sin imagen" />
+          </div>
+          }
+        </div>
+
+        <div class="bg-white p-3 mb-4 rounded shadow-sm border d-flex align-items-center">
+          <div class="fs-3 me-3">📢</div>
+          <div>
+            <small class="text-muted text-uppercase fw-bold" style="font-size:0.8rem;">
+              Dirigida a:
+            </small>
+            <div class="fw-bold fs-5">
+              {{ peticion()!.destinatary }}
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 rounded shadow-sm">
+          <h4 class="fw-bold mb-3">Descripción</h4>
+          <div class="text-break" style="color:#444; line-height: 1.8; white-space: pre-line;">
+            {{ peticion()!.description }}
+          </div>
+        </div>
+
+      </div>
+
+      <div class="col-lg-4">
+        <div class="card shadow border-0" style="position: sticky; top: 20px;">
+          <div class="card-body p-4">
+
+            <div class="mb-2 fw-bold">
+              <span class="fs-4">{{ peticion()!.signeds || 0 }}</span>
+              <span class="text-muted"> firmas</span>
+            </div>
+
+            <div class="progress mb-3" style="height: 10px;">
+              <div class="progress-bar bg-danger" [style.width.%]="((peticion()!.signeds || 0) / 10000) * 100">
+              </div>
+            </div>
+
+            <p class="fw-semibold mb-1">
+              {{ peticion()!.user?.name || 'Usuario desconocido' }}
+            </p>
+            <p class="text-muted" style="margin-top:-7px;">
+              Creador de la petición
+            </p>
+
+            <h5 class="fw-bold mt-4 mb-3">Firmar petición</h5>
+
+            @if (authService.isLoggedIn()) {
+            <button class="btn btn-danger btn-lg w-100 fw-bold py-3" (click)="firmarPeticion()"
+              [disabled]="esPropioPropietario() || firmada()">
+              @if (firmada()) {
+              Ya firmada ✔
+              } @else if (esPropioPropietario()) {
+              No puedes firmar tu petición
+              } @else {
+              Firmar petición
+              }
+            </button>
+            } @else {
+            <a routerLink="/login" class="btn btn-secondary btn-lg w-100 fw-bold py-3">
+              Inicia sesión para firmar
+            </a>
+            }
+
+          </div>
+
+          <div class="card-footer bg-light text-center">
+            <small class="text-muted">Estado:</small>
+            <span class="badge" [class.bg-success]="peticion()!.status === 'active'"
+              [class.bg-warning]="peticion()!.status !== 'active'" [class.text-dark]="peticion()!.status !== 'active'">
+
+              @if (peticion()!.status === 'active') { Activa }
+              @else if (peticion()!.status === 'pending') { Pendiente }
+              @else if (peticion()!.status === 'closed') { Cerrada }
+              @else { {{ peticion()!.status }} }
+            </span>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+    }
+    }
+  </div>
+</section>

@@ -1,0 +1,128 @@
+<section class="py-5">
+  <div class="container">
+
+    <!-- CABECERA -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h1 class="fw-bold mb-0" style="color:#3b3642;">
+          Todas las peticiones
+        </h1>
+
+        @if (!cargando) {
+          <small class="text-muted">
+            {{ totalResultados() }} resultado(s)
+          </small>
+        }
+      </div>
+    </div>
+
+    <!-- LOADING -->
+    @if (cargando) {
+      <div class="text-center py-5">
+        <div class="spinner-border" role="status"></div>
+        <p class="mt-3 text-muted">Cargando peticiones...</p>
+      </div>
+    } @else {
+
+      <!-- NO HAY PETICIONES -->
+      @if (peticiones().length === 0) {
+        <div class="alert alert-warning">
+          No hay peticiones todavía.
+        </div>
+      } @else {
+
+        <!-- LISTADO -->
+        <div class="row g-4">
+
+          @for (petition of peticiones(); track $index) {
+
+            <div class="col-12 col-md-6 col-lg-4">
+
+              <div class="card shadow-sm border-0 h-100"
+                   style="border-radius:12px; overflow:hidden;">
+
+                <!-- IMAGEN -->
+                <div class="position-relative">
+                  @if (petition.files && petition.files.length > 0) {
+
+                    <img
+                      class="card-img-top"
+                      [src]="API_URL + petition.files[0].file_path"
+                      style="height:180px; object-fit:cover;"
+                      alt="Petition image"
+                    />
+
+                  } @else {
+
+                    <div
+                      class="d-flex align-items-center justify-content-center bg-light"
+                      style="height:180px; color:#999;"
+                    >
+                      Sin imagen
+                    </div>
+
+                  }
+                </div>
+
+                <!-- BODY -->
+                <div class="card-body d-flex flex-column">
+
+                  <h5 class="fw-bold mt-2" style="color:#222;">
+                    {{ petition.title }}
+                  </h5>
+
+                  <p class="text-muted mb-1" style="font-size:0.9rem;">
+                    <strong>Dirigida a:</strong> {{ petition.destinatary }}
+                  </p>
+
+                  <p class="mt-2" style="color:#555; font-size:0.92rem;">
+                    {{ petition.description }}
+                  </p>
+
+                  <div class="d-flex align-items-center mb-3" style="color:#1a73e8;">
+                    <span style="font-size:1.2rem; margin-right:6px;">🖊️</span>
+                    <span class="fw-semibold">
+                      {{ petition.signeds || 0 }} firmas
+                    </span>
+                  </div>
+
+                  <!-- ESTADO -->
+                  <span class="mb-3" [class]="getEstadoClass(petition.status)">
+                    {{ getEstadoTexto(petition.status) }}
+                  </span>
+
+                  <!-- BOTÓN VER -->
+                  <a
+                    class="btn btn-outline-secondary fw-semibold w-100 mt-auto"
+                    style="border-radius:10px;"
+                    [routerLink]="['/peticiones', petition.id]"
+                  >
+                    Ver petición
+                  </a>
+
+                  <!-- BOTÓN BORRAR (solo dueño) -->
+                  @if (esPropioPropietario(petition)) {
+                    <button
+                      class="btn btn-outline-danger fw-semibold w-100 mt-2"
+                      style="border-radius:10px;"
+                      (click)="delete(petition.id!)"
+                    >
+                      Eliminar
+                    </button>
+                  }
+
+                </div>
+              </div>
+
+            </div>
+
+          }
+
+        </div>
+
+      }
+
+    }
+
+  </div>
+</section>

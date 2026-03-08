@@ -1,0 +1,186 @@
+<section class="py-5">
+  <div class="container">
+
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+      <h1 class="fw-bold mb-0">Editar petición</h1>
+
+      <button
+        type="button"
+        class="btn btn-outline-secondary fw-bold"
+        (click)="cancelar()"
+      >
+        Cancelar
+      </button>
+    </div>
+
+    @if (cargandoDatos()) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-danger"></div>
+        <p class="mt-3 text-muted">Cargando datos de la petición...</p>
+      </div>
+    }
+
+    @else if (errorMessage()) {
+      <div class="alert alert-danger d-flex align-items-center justify-content-between">
+        <div>
+          <strong>Error:</strong> {{ errorMessage() }}
+        </div>
+
+        <button
+          type="button"
+          class="btn btn-outline-danger btn-sm"
+          (click)="errorMessage.set('')"
+        >
+          Cerrar
+        </button>
+      </div>
+    }
+
+    @else {
+
+      <form
+        class="d-flex flex-column p-md-5 mt-4 bg-white rounded shadow-sm border"
+        [formGroup]="itemForm"
+        (ngSubmit)="onSubmit()"
+        enctype="multipart/form-data"
+      >
+
+        <div class="mb-3">
+          <label class="form-label fw-bold">Título</label>
+          <input
+            type="text"
+            class="form-control"
+            formControlName="title"
+            placeholder="Ejemplo: Queremos más árboles en el barrio"
+          />
+          @if (itemForm.get('title')?.touched && itemForm.get('title')?.invalid) {
+            <small class="text-danger">El título es obligatorio.</small>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold">Dirigida a</label>
+          <input
+            type="text"
+            class="form-control"
+            formControlName="destinatary"
+            placeholder="Ejemplo: Ayuntamiento de Logroño"
+          />
+          @if (itemForm.get('destinatary')?.touched && itemForm.get('destinatary')?.invalid) {
+            <small class="text-danger">El destinatario es obligatorio.</small>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold">Descripción</label>
+          <textarea
+            rows="5"
+            class="form-control"
+            formControlName="description"
+            placeholder="Explica el problema y por qué es importante..."
+          ></textarea>
+          @if (itemForm.get('description')?.touched && itemForm.get('description')?.invalid) {
+            <small class="text-danger">La descripción es obligatoria.</small>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold">Categoría de la petición</label>
+          <select
+            class="form-control"
+            formControlName="category_id"
+            [class.is-invalid]="itemForm.get('category_id')?.invalid && itemForm.get('category_id')?.touched"
+          >
+            <option value="">-- Selecciona una categoría --</option>
+            @for (cat of categorias(); track cat.id) {
+              <option [value]="cat.id">{{ cat.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="mt-4 border-top pt-4">
+          <h4 class="fw-bold fs-3">Imágenes de la petición</h4>
+          
+          <p class="text-muted mb-2">Imágenes actuales en el servidor:</p>
+          <div class="row g-2 mb-4">
+            @if (peticion()?.files && peticion()?.files?.length! > 0) {
+              @for (file of peticion()?.files; track file.id) {
+                <div class="col-6 col-md-3">
+                  <div class="position-relative">
+                    <img 
+                      [src]="'http://localhost:8000/storage/' + file.file_path" 
+                      class="img-fluid rounded border shadow-sm" 
+                      style="height: 120px; width: 100%; object-fit: cover;"
+                      alt="Imagen actual"
+                    />
+                  </div>
+                </div>
+              }
+            } @else {
+              <div class="col-12">
+                <div class="p-3 border rounded bg-light text-muted small">
+                  No hay imágenes previas para esta petición.
+                </div>
+              </div>
+            }
+          </div>
+
+          @if (previewsNuevas().length > 0) {
+            <div class="mb-4">
+              <p class="text-success fw-bold mb-2">Nuevas imágenes seleccionadas:</p>
+              <div class="row g-2">
+                @for (preview of previewsNuevas(); track preview) {
+                  <div class="col-6 col-md-3">
+                    <img 
+                      [src]="preview" 
+                      class="img-fluid rounded border border-success shadow-sm" 
+                      style="height: 120px; width: 100%; object-fit: cover;"
+                    />
+                  </div>
+                }
+              </div>
+              <button type="button" class="btn btn-sm btn-outline-danger mt-2" (click)="removeNewFiles()">
+                Quitar selección nueva
+              </button>
+            </div>
+          }
+
+          <div class="mb-3">
+            <label for="formFileMultiple" class="form-label fw-bold">Subir nuevas imágenes</label>
+            <input
+              class="form-control"
+              type="file"
+              id="formFileMultiple"
+              accept="image/*"
+              (change)="onFilesSelected($event)"
+              multiple
+            />
+            <label class="form-label mt-1 text-muted small">
+              Formatos permitidos: jpeg, png, jpg, webp. Puedes seleccionar varias archivos a la vez.
+            </label>
+          </div>
+
+          <div class="d-flex gap-2 flex-wrap mt-4">
+            <button
+              type="submit"
+              class="btn btn-danger btn-lg fw-bold"
+              [disabled]="loading()"
+            >
+              @if (loading()) { Guardando cambios... } @else { Guardar cambios }
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-outline-secondary btn-lg fw-bold"
+              (click)="cancelar()"
+              [disabled]="loading()"
+            >
+              Cancelar
+            </button>
+          </div>
+
+        </div>
+      </form>
+    }
+  </div>
+</section>
