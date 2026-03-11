@@ -16,15 +16,19 @@ export class PublicLayout {
   authService = inject(AuthService);
   router = inject(Router);
 
-  // 🔥 Dropdown manual
+  // Dropdown manual
   menuOpen = signal(false);
 
-  logout() {
-    this.authService.logout().subscribe(() => {
-      this.menuOpen.set(false);
-      this.router.navigate(['/login']);
-    });
-  }
+ logout() {
+  this.authService.logout().subscribe((res: any) => {
+    console.log(res.message); 
+    
+    // Limpieza y navegación
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user');
+    this.router.navigate(['/login']);
+  });
+}
 
   toggleMenu(event: Event) {
     event.preventDefault();

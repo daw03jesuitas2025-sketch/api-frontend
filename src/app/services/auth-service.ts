@@ -17,7 +17,6 @@ export class AuthService {
   // Signal para estado de autenticación
   isLoggedIn = signal<boolean>(!!localStorage.getItem('access_token'));
 
-  // ✅ ARREGLO DE LA "U": Cargamos user_data inmediatamente para que la inicial sea correcta al arrancar
   currentUser = signal<User | null>(this.getUserFromStorage());
 
   user$ = this.userSubject.asObservable();

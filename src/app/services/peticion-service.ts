@@ -40,7 +40,6 @@ private getHeaders() {
     );
   }
 
-  // CORREGIDO: Añadidas cabeceras de autorización
   getMisPeticiones(): Observable<any> {
     return this.http.get(`http://localhost:8000/api/mispeticiones`, { headers: this.getHeaders() });
   }
@@ -49,7 +48,6 @@ private getHeaders() {
     return this.http.get(`http://localhost:8000/api/misfirmas`, { headers: this.getHeaders() });
   }
 
-  // CORREGIDO: Añadidas cabeceras de autorización
   create(formData: FormData) {
     return this.http.post<{ data: Peticion }>(this.API_URL, formData, { headers: this.getHeaders() }).pipe(
       tap(res => {
@@ -58,7 +56,6 @@ private getHeaders() {
     );
   }
 
-  // CORREGIDO: Añadidas cabeceras de autorización
   update(id: number, formData: FormData) {
     formData.append('_method', 'PUT'); 
     return this.http.post<{ data: Peticion }>(`${this.API_URL}/${id}`, formData, { headers: this.getHeaders() }).pipe(

@@ -123,9 +123,9 @@ export class EditComponent implements OnInit {
     formData.append('description', this.itemForm.get('description')?.value || '');
     formData.append('destinatary', this.itemForm.get('destinatary')?.value || '');
     formData.append('category_id', this.itemForm.get('category_id')?.value || '');
-    formData.append('_method', 'PUT'); // Importante para Laravel
+    formData.append('_method', 'PUT'); 
 
-    // EL TRUCO: Enviar el array de archivos nuevos
+    // Enviar el array de archivos nuevos
     this.filesToUpload.forEach(file => {
       formData.append('files[]', file, file.name);
     });

@@ -48,7 +48,7 @@ export class ListComponent implements OnInit {
 
       if (this.peticiones().length === 0) {
         this.cargando = true
-        this.cdr.markForCheck(); // ✅ IMPORTANTE
+        this.cdr.markForCheck();
       }
 
       this.peticionService.fetchPeticiones().subscribe({
@@ -56,13 +56,13 @@ export class ListComponent implements OnInit {
           this.peticiones.set(data);
           this.cargando = false;
 
-          this.cdr.markForCheck(); // ✅ IMPORTANTE
+          this.cdr.markForCheck(); 
         },
         error: (err) => {
           console.error('Error al cargar peticiones:', err);
           this.cargando = false;
 
-          this.cdr.markForCheck(); // ✅ IMPORTANTE
+          this.cdr.markForCheck(); 
         }
       });
     });
@@ -72,11 +72,11 @@ export class ListComponent implements OnInit {
     this.categoriaService.fetchCategorias().subscribe({
       next: res => {
         this.categorias.set(res.data);
-        this.cdr.markForCheck(); // ✅ IMPORTANTE
+        this.cdr.markForCheck(); 
       },
       error: err => {
         console.log(err);
-        this.cdr.markForCheck(); // ✅ IMPORTANTE
+        this.cdr.markForCheck(); 
       }
     })
   }
@@ -86,13 +86,13 @@ export class ListComponent implements OnInit {
       this.peticionService.delete(id).subscribe({
         error: (err) => {
           alert('No puedes borrar esto (quizás no eres el dueño)');
-          this.cdr.markForCheck(); // ✅ IMPORTANTE
+          this.cdr.markForCheck(); 
         },
         next: () => {
           const nuevasPeticiones = this.peticiones().filter(p => p.id !== id);
           this.peticiones.set(nuevasPeticiones);
 
-          this.cdr.markForCheck(); // ✅ IMPORTANTE
+          this.cdr.markForCheck();
         }
       });
     }
