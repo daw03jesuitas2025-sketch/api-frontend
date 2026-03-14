@@ -1,0 +1,9 @@
+.navbar-nav {
+  list-style: none !important; /* Quita los puntos automáticos */
+  padding-left: 0;
+  margin-bottom: 0;
+}
+
+.nav-item {
+  list-style-type: none !important; /* Refuerzo para cada item */
+}

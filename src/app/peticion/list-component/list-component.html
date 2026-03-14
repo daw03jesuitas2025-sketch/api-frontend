@@ -1,7 +1,6 @@
 <section class="py-5">
   <div class="container">
 
-    <!-- CABECERA -->
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
         <h1 class="fw-bold mb-0" style="color:#3b3642;">
@@ -16,7 +15,33 @@
       </div>
     </div>
 
-    <!-- LOADING -->
+    <div class="row mb-4 g-3 align-items-end">
+      <div class="col-md-5">
+        <label class="fw-bold small mb-1" style="color: #666;">ESTADO DE FIRMAS</label>
+        <select class="form-select" [ngModel]="filtroFirma()" (ngModelChange)="filtroFirma.set($event)">
+          <option value="todas">Todas las peticiones</option>
+          <option value="con_firmas">Peticiones con firmas</option>
+          <option value="sin_firmas">Peticiones sin firmas</option>
+        </select>
+      </div>
+
+      <div class="col-md-5">
+        <label class="fw-bold small mb-1" style="color: #666;">CATEGORÍA</label>
+        <select class="form-select" [ngModel]="filtroCategoria()" (ngModelChange)="filtroCategoria.set($event)">
+          <option value="todas">Todas las categorías disponibles</option>
+          @for (cat of categorias(); track cat.id) {
+            <option [value]="cat.id">{{ cat.name }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="col-md-2">
+        <div class="badge bg-danger p-2 w-100 fs-6 shadow-sm" style="border-radius: 8px;">
+          {{ totalResultados() }} resultados
+        </div>
+      </div>
+    </div>
+
     @if (cargando) {
       <div class="text-center py-5">
         <div class="spinner-border" role="status"></div>
@@ -24,24 +49,21 @@
       </div>
     } @else {
 
-      <!-- NO HAY PETICIONES -->
-      @if (peticiones().length === 0) {
+      @if (peticionesFiltradas().length === 0) {
         <div class="alert alert-warning">
-          No hay peticiones todavía.
+          No hay peticiones que coincidan con los filtros aplicados.
         </div>
       } @else {
 
-        <!-- LISTADO -->
         <div class="row g-4">
 
-          @for (petition of peticiones(); track $index) {
+          @for (petition of peticionesFiltradas(); track petition.id) {
 
             <div class="col-12 col-md-6 col-lg-4">
 
               <div class="card shadow-sm border-0 h-100"
                    style="border-radius:12px; overflow:hidden;">
 
-                <!-- IMAGEN -->
                 <div class="position-relative">
                   @if (petition.files && petition.files.length > 0) {
 
@@ -62,9 +84,12 @@
                     </div>
 
                   }
+                  
+                  <span class="position-absolute top-0 start-0 m-2 badge bg-dark opacity-75">
+                    {{ petition.category?.name }}
+                  </span>
                 </div>
 
-                <!-- BODY -->
                 <div class="card-body d-flex flex-column">
 
                   <h5 class="fw-bold mt-2" style="color:#222;">
@@ -86,12 +111,10 @@
                     </span>
                   </div>
 
-                  <!-- ESTADO -->
                   <span class="mb-3" [class]="getEstadoClass(petition.status)">
                     {{ getEstadoTexto(petition.status) }}
                   </span>
 
-                  <!-- BOTÓN VER -->
                   <a
                     class="btn btn-outline-secondary fw-semibold w-100 mt-auto"
                     style="border-radius:10px;"
@@ -100,7 +123,6 @@
                     Ver petición
                   </a>
 
-                  <!-- BOTÓN BORRAR (solo dueño) -->
                   @if (esPropioPropietario(petition)) {
                     <button
                       class="btn btn-outline-danger fw-semibold w-100 mt-2"

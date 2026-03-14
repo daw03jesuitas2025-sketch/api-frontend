@@ -1,64 +1,36 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
-import { inject } from '@angular/core';
+import { inject, Injector } from '@angular/core';
 import { AuthService } from '../services/auth-service';
-import { catchError, switchMap, throwError } from 'rxjs';
-
-
-// añade automáticamente el token JWT en la cabecera Authorization en todas las peticiones, si el usuario está logueado.
+import { catchError, throwError } from 'rxjs';
 
 export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
+  // 1. Inyectamos el Injector en lugar del AuthService directamente
+  const injector = inject(Injector);
+  
+  // 2. Obtenemos el token manualmente del localStorage para no depender del servicio al inicio
+  const token = localStorage.getItem('access_token');
 
-  const auth = inject(AuthService);
-
-  const token = auth.getAccessToken();
-
-  // 1) Añadir token si existe
   let request = req;
-
   if (token) {
     request = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
+      setHeaders: { Authorization: `Bearer ${token}` }
     });
   }
 
   return next(request).pipe(
     catchError((err: HttpErrorResponse) => {
+      // 3. Si hay error, pedimos el AuthService al injector "bajo demanda"
+      const auth = injector.get(AuthService);
 
-      // Si falla login, no intentamos refresh
-      if (req.url.includes('/login') && err.status === 401) {
+      if (err.status === 403) {
+        console.warn('Error 403 detectado. Sin permisos, pero mantenemos sesión.');
         return throwError(() => err);
       }
 
-      // Si falla refresh, logout directo
-      if (req.url.includes('/refresh')) {
-        auth.logout().subscribe(); // limpia sesión
-        return throwError(() => err);
-      }
-
-      // ✅ Si es 401 estándar, refrescar token
       if (err.status === 401) {
-        return auth.refreshToken().pipe(
-          switchMap((res: any) => {
-
-            // Guardar token nuevo
-            localStorage.setItem('access_token', res.access_token);
-
-            // Reintentar request original
-            const newReq = req.clone({
-              setHeaders: {
-                Authorization: `Bearer ${res.access_token}`
-              }
-            });
-
-            return next(newReq);
-          }),
-          catchError((refreshErr) => {
-            auth.logout().subscribe();
-            return throwError(() => refreshErr);
-          })
-        );
+        console.error('Error 401 detectado.');
+        auth.limpiarSesionLocal(); 
+        return throwError(() => err);
       }
 
       return throwError(() => err);

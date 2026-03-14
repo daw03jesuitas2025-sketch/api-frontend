@@ -62,30 +62,32 @@ export class EditComponent implements OnInit {
     });
   }
 
-  cargarDatos(id: number) {
-    this.cargandoDatos.set(true);
-    this.peticionService.getById(id).subscribe({
-      next: (res: any) => {
-        const data = res.data ? res.data : res;
-        this.verificarPropietario(data as Peticion);
-        this.peticion.set(data as Peticion);
+cargarDatos(id: number) {
+  this.cargandoDatos.set(true);
+  this.peticionService.getById(id).subscribe({
+    next: (res: any) => {
+      const data = res.data ? res.data : res;
+      const currentUserId = this.authService.currentUser()?.id;
 
-        this.itemForm.patchValue({
-          title: data.title,
-          description: data.description,
-          destinatary: data.destinatary,
-          category_id: String(data.category_id)
-        });
-
-        this.cargandoDatos.set(false);
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        this.errorMessage.set('Error al cargar la petición');
-        this.cargandoDatos.set(false);
+      if (data.user_id !== currentUserId) {
+        console.warn('Acceso denegado: redirigiendo...');
+        
+        alert('No tienes permiso para editar esta petición.');
+        this.router.navigate(['/peticiones', id]);
+        return;
       }
-    });
-  }
+
+      this.peticion.set(data);
+      this.itemForm.patchValue({ /* ... */ });
+      this.cargandoDatos.set(false);
+      this.cdr.detectChanges();
+    },
+    error: (err) => {
+      this.errorMessage.set('La petición no existe o no tienes permisos.');
+      this.cargandoDatos.set(false);
+    }
+  });
+}
 
   onFilesSelected(event: any) {
     const files = event.target.files;

@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../services/auth-service';
+import { SearchService } from '../../services/search.service';
 
 @Component({
   selector: 'app-public-layout',
@@ -16,19 +17,26 @@ export class PublicLayout {
   authService = inject(AuthService);
   router = inject(Router);
 
+  searchService = inject(SearchService);
+
+  onSearch(event: any) {
+    const value = event.target.value;
+    this.searchService.updateSearch(value); // Envio el texto al servicio
+  }
+
   // Dropdown manual
   menuOpen = signal(false);
 
- logout() {
-  this.authService.logout().subscribe((res: any) => {
-    console.log(res.message); 
-    
-    // Limpieza y navegación
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('user');
-    this.router.navigate(['/login']);
-  });
-}
+  logout() {
+    this.authService.logout().subscribe((res: any) => {
+      console.log(res.message);
+
+      // Limpieza y navegación
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('user');
+      this.router.navigate(['/login']);
+    });
+  }
 
   toggleMenu(event: Event) {
     event.preventDefault();
@@ -40,16 +48,16 @@ export class PublicLayout {
     this.menuOpen.set(false);
   }
 
-getUserInitial(): string {
-  // 1. Detectamos el usuario actual desde el Signal del servicio
-  const user = this.authService.currentUser();
-  
-  // 2. Si el sistema detecta el nombre, extrae la primera letra automáticamente
-  if (user && user.name) {
-    return user.name.charAt(0).toUpperCase();
+  getUserInitial(): string {
+    // 1. Detectamos el usuario actual desde el Signal del servicio
+    const user = this.authService.currentUser();
+
+    // 2. Si el sistema detecta el nombre, extrae la primera letra automáticamente
+    if (user && user.name) {
+      return user.name.charAt(0).toUpperCase();
+    }
+
+    // 3. Si aún no hay nada detectado, no devuelvas una 'U', devuelve vacío
+    return '';
   }
-  
-  // 3. Si aún no hay nada detectado, no devuelvas una 'U', devuelve vacío
-  return ''; 
-}
 }

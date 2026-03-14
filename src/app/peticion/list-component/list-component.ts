@@ -4,67 +4,85 @@ import { AuthService } from '../../services/auth-service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Categoria, Peticion } from '../../models/peticion';
 import { CategoriasService } from '../../services/categorias-service';
-import { DatePipe } from '@angular/common';
+import { DatePipe, SlicePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { SearchService } from '../../services/search.service';
+
 
 @Component({
   selector: 'app-list-component',
-  imports: [DatePipe, RouterLink, FormsModule],
+  standalone: true,
+  imports: [DatePipe, RouterLink, FormsModule, SlicePipe],
   templateUrl: './list-component.html',
   styleUrl: './list-component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ListComponent implements OnInit {
+  readonly API_URL = "http://localhost:8000/storage/";
 
-  readonly API_URL = "http://localhost:8000/storage/"
-
-  peticionService = inject(PeticionService);
-  router = inject(Router)
-
+  private peticionService = inject(PeticionService);
   private authService = inject(AuthService);
-  private route = inject(ActivatedRoute);
   private categoriaService = inject(CategoriasService);
-  private cdr = inject(ChangeDetectorRef)
+  private cdr = inject(ChangeDetectorRef);
+  private searchService = inject(SearchService);
 
-  peticiones = signal<Peticion[]>([])
-  categorias = signal<Categoria[]>([])
-
-  totalResultados = computed(() => this.peticiones().length);
-
-  esPropioPropietario(peticion: Peticion): boolean {
-    const currentUserId = this.authService.currentUser()?.id;
-    return peticion.user_id === currentUserId;
-  }
-
+  // Datos originales del servidor
+  peticiones = signal<Peticion[]>([]);
+  categorias = signal<Categoria[]>([]);
   public cargando: boolean = true;
 
+  // Señales para los filtros vinculadas al HTML 
+  filtroFirma = signal<string>('todas');
+  filtroCategoria = signal<string>('todas');
+
+  // Lógica de filtrado 
+  // computed para actualizar los datos sin necesidad de recargar la página
+  peticionesFiltradas = computed(() => {
+    let resultado = this.peticiones();
+    const busqueda = this.searchService.searchTerm().toLowerCase(); // Obtener el texto del navbar
+    
+    // Filtro por Título
+    if (busqueda) {
+      resultado = resultado.filter(p => 
+        p.title.toLowerCase().includes(busqueda)
+      );
+    }
+
+    // Filtro por Estado de Firmas 
+    if (this.filtroFirma() === 'con_firmas') {
+      resultado = resultado.filter(p => (p.signeds ?? 0) > 0);
+    } else if (this.filtroFirma() === 'sin_firmas') {
+      resultado = resultado.filter(p => (p.signeds ?? 0) === 0);
+    }
+
+    // Filtro por Categoría 
+    if (this.filtroCategoria() !== 'todas') {
+      resultado = resultado.filter(p => p.category_id === Number(this.filtroCategoria()));
+    }
+    return resultado;
+  });
+
+  // Contador de resultados dinámico 
+  totalResultados = computed(() => this.peticionesFiltradas().length);
+
   ngOnInit(): void {
-    this.getCategories()
-    this.getPeticiones()
+    this.getCategories();
+    this.getPeticiones();
   }
 
   getPeticiones() {
-    this.route.queryParams.subscribe(params => {
-
-      if (this.peticiones().length === 0) {
-        this.cargando = true
+    this.cargando = true;
+    this.peticionService.fetchPeticiones().subscribe({
+      next: (data) => {
+        this.peticiones.set(data);
+        this.cargando = false;
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        console.error('Error al cargar peticiones:', err);
+        this.cargando = false;
         this.cdr.markForCheck();
       }
-
-      this.peticionService.fetchPeticiones().subscribe({
-        next: (data) => {
-          this.peticiones.set(data);
-          this.cargando = false;
-
-          this.cdr.markForCheck(); 
-        },
-        error: (err) => {
-          console.error('Error al cargar peticiones:', err);
-          this.cargando = false;
-
-          this.cdr.markForCheck(); 
-        }
-      });
     });
   }
 
@@ -72,26 +90,20 @@ export class ListComponent implements OnInit {
     this.categoriaService.fetchCategorias().subscribe({
       next: res => {
         this.categorias.set(res.data);
-        this.cdr.markForCheck(); 
-      },
-      error: err => {
-        console.log(err);
-        this.cdr.markForCheck(); 
+        this.cdr.markForCheck();
       }
-    })
+    });
+  }
+
+  esPropioPropietario(peticion: Peticion): boolean {
+    return peticion.user_id === this.authService.currentUser()?.id;
   }
 
   delete(id: number) {
-    if (confirm('¿Seguro?')) {
+    if (confirm('¿Seguro que deseas eliminar esta petición?')) {
       this.peticionService.delete(id).subscribe({
-        error: (err) => {
-          alert('No puedes borrar esto (quizás no eres el dueño)');
-          this.cdr.markForCheck(); 
-        },
         next: () => {
-          const nuevasPeticiones = this.peticiones().filter(p => p.id !== id);
-          this.peticiones.set(nuevasPeticiones);
-
+          this.peticiones.set(this.peticiones().filter(p => p.id !== id));
           this.cdr.markForCheck();
         }
       });
@@ -115,5 +127,4 @@ export class ListComponent implements OnInit {
       default: return 'Desconocido';
     }
   }
-
 }

@@ -10,18 +10,16 @@ export class PeticionService {
   private http = inject(HttpClient);
   private readonly API_URL = 'http://localhost:8000/api/peticiones';
 
-  // State (Signals)
   #peticiones = signal<Peticion[]>([]);
   loading = signal<boolean>(false);
   allPeticiones = this.#peticiones.asReadonly();
 
-  // Función auxiliar para obtener las cabeceras con el Token
-private getHeaders() {
-  const token = localStorage.getItem('access_token'); 
-  return new HttpHeaders({
-    'Authorization': `Bearer ${token}`
-  });
-}
+  private getHeaders() {
+    const token = localStorage.getItem('access_token'); 
+    return new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+  }
 
   fetchPeticiones() {
     this.loading.set(true);
@@ -34,6 +32,7 @@ private getHeaders() {
     );
   }
 
+  // PÚBLICO
   getById(id: number) {
     return this.http.get<{ data: Peticion }>(`${this.API_URL}/${id}`).pipe(
       map(res => res.data)
@@ -41,15 +40,15 @@ private getHeaders() {
   }
 
   getMisPeticiones(): Observable<any> {
-    return this.http.get(`http://localhost:8000/api/mispeticiones`, { headers: this.getHeaders() });
+    return this.http.get(`http://localhost:8000/api/mispeticiones`);
   }
 
   getMisFirmas(): Observable<any> {
-    return this.http.get(`http://localhost:8000/api/misfirmas`, { headers: this.getHeaders() });
+    return this.http.get(`http://localhost:8000/api/misfirmas`);
   }
 
   create(formData: FormData) {
-    return this.http.post<{ data: Peticion }>(this.API_URL, formData, { headers: this.getHeaders() }).pipe(
+    return this.http.post<{ data: Peticion }>(this.API_URL, formData).pipe(
       tap(res => {
         this.#peticiones.update(list => [res.data, ...list]);
       })
@@ -57,8 +56,8 @@ private getHeaders() {
   }
 
   update(id: number, formData: FormData) {
-    formData.append('_method', 'PUT'); 
-    return this.http.post<{ data: Peticion }>(`${this.API_URL}/${id}`, formData, { headers: this.getHeaders() }).pipe(
+    formData.append('_method', 'PUT'); // [cite: 256]
+    return this.http.post<{ data: Peticion }>(`${this.API_URL}/${id}`, formData).pipe(
       tap(res => {
         this.#peticiones.update(list =>
           list.map(p => p.id === id ? res.data : p)
@@ -68,7 +67,7 @@ private getHeaders() {
   }
 
   delete(id: number) {
-    return this.http.delete(`${this.API_URL}/${id}`, { headers: this.getHeaders() }).pipe(
+    return this.http.delete(`${this.API_URL}/${id}`).pipe(
       tap(() => {
         this.#peticiones.update(list => list.filter(p => p.id !== id));
       })
@@ -78,8 +77,7 @@ private getHeaders() {
   firmar(id: number) {
     return this.http.put<{ success: boolean; message: string }>(
       `${this.API_URL}/${id}/sign`,
-      {},
-      { headers: this.getHeaders() }
+      {}
     );
   }
 }

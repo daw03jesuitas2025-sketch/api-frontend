@@ -1,211 +1,88 @@
 <div class="layout-root d-flex flex-column min-vh-100">
-
-  <!-- HEADER -->
   <header (click)="closeMenu()">
     <nav class="navbar navbar-expand-lg bg-white border-bottom">
       <div class="container d-flex align-items-center">
-
-        <!-- LOGO -->
-        <a class="navbar-brand fw-bold"
-           routerLink="/"
-           style="color:#d93025; font-size:1.55rem; margin-right:28px;"
-           (click)="closeMenu()">
+        <a class="navbar-brand fw-bold" routerLink="/" style="color:#d93025; font-size:1.55rem; margin-right:28px;"
+          (click)="closeMenu()">
           change.org
         </a>
 
-        <!-- LEFT MENU (solo si estás logueado) -->
-        @if (authService.isLoggedIn()) {
+        <ul class="navbar-nav align-items-center gap-4">
+          <li class="nav-item">
+            <a class="nav-link fw-semibold" routerLink="/peticiones" (click)="closeMenu()"
+              style="font-size:0.95rem; color:#222;">
+              Todas las peticiones
+            </a>
+          </li>
 
-          <ul class="navbar-nav align-items-center gap-4">
-
-            <li class="nav-item">
-              <a class="nav-link fw-semibold"
-                 routerLink="/peticiones"
-                 (click)="closeMenu()"
-                 style="font-size:0.95rem; color:#222;">
-                Todas las peticiones
-              </a>
-            </li>
-
-            <li class="nav-item">
-              <a class="nav-link fw-semibold"
-                 routerLink="/mispeticiones"
-                 (click)="closeMenu()"
-                 style="font-size:0.95rem; color:#222;">
-                Mis peticiones
-              </a>
-            </li>
-
-            <li class="nav-item">
-              <a class="nav-link fw-semibold"
-                 routerLink="/misfirmas"
-                 (click)="closeMenu()"
-                 style="font-size:0.95rem; color:#222;">
-                Peticiones firmadas
-              </a>
-            </li>
-
-            <li class="nav-item">
-              <a class="nav-link fw-semibold"
-                 routerLink="/create"
-                 (click)="closeMenu()"
-                 style="font-size:0.95rem; color:#222;">
-                Crear una petición
-              </a>
-            </li>
-
-          </ul>
-
-        }
-
-        <div class="flex-grow-1"></div>
-
-        <!-- RIGHT MENU -->
-        <ul class="navbar-nav ms-auto">
-
-          <!-- LOGGED USER -->
-          @if (authService.isLoggedIn()) {
-
-            <li class="nav-item dropdown user-dropdown"
-                style="position: relative;">
-
-              <a class="nav-link d-flex align-items-center"
-                 href="#"
-                 (click)="toggleMenu($event)">
-
-                <div style="
-                  width: 38px;
-                  height: 38px;
-                  background-color: #d93025;
-                  color: white;
-                  border-radius: 50%;
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  font-weight: bold;
-                  font-size: 1.2rem;">
-                  {{ getUserInitial() }}
-                </div>
-
-              </a>
-
-              @if (menuOpen()) {
-                <div class="dropdown-menu dropdown-menu-end show navbar-dropdown position-absolute z-3"
-                     style="right:0; top: 48px; display:block;"
-                     (click)="$event.stopPropagation()">
-
-                  <div class="dropdown-header text-center">
-                    <p class="mb-1 mt-3 fw-semibold">
-                      {{ authService.currentUser()?.name || 'User' }}
-                    </p>
-                    <p class="fw-light text-muted mb-0">
-                      {{ authService.currentUser()?.email || '' }}
-                    </p>
-                  </div>
-
-                  <a class="dropdown-item"
-                     routerLink="/profile"
-                     (click)="closeMenu()">
-                    Mi perfil
-                  </a>
-
-                  <button class="dropdown-item"
-                          type="button"
-                          (click)="logout()">
-                    Cerrar sesión
-                  </button>
-
-                </div>
-              }
-
-            </li>
-
-          } @else {
-
-            <!-- NOT LOGGED -->
-            <li class="nav-item">
-              <a routerLink="/register"
-                 class="btn btn-outline-dark fw-semibold px-3 py-1"
-                 style="font-size:0.93rem; border-radius:8px;">
-                Registrarse
-              </a>
-            </li>
-
-            <li class="nav-item ms-2">
-              <a class="btn btn-outline-dark fw-semibold px-3 py-1"
-                 routerLink="/login"
-                 style="font-size:0.95rem; color:#222;">
-                Login
-              </a>
-            </li>
-
-          }
+          <li class="nav-item">
+            <a class="nav-link fw-semibold" routerLink="/mispeticiones" (click)="closeMenu()"
+              style="font-size:0.95rem; color:#222;">
+              Mis peticiones
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link fw-semibold" routerLink="/misfirmas" (click)="closeMenu()"
+              style="font-size:0.95rem; color:#222;">
+              Peticiones firmadas
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link fw-semibold" routerLink="/create" (click)="closeMenu()"
+              style="font-size:0.95rem; color:#222;">
+              Crear una petición
+            </a>
+          </li>
 
         </ul>
 
+        <li class="nav-item ms-3">
+          <div class="input-group" style="width: 250px;">
+            <span class="input-group-text bg-light border-0" style="border-radius: 20px 0 0 20px;">🔍</span>
+            <input type="search" class="form-control bg-light border-0" placeholder="Buscar por título..."
+              style="font-size: 0.9rem;" (input)="onSearch($event)">
+          </div>
+        </li>
+
+        <div class="flex-grow-1"></div>
+
+        <ul class="navbar-nav ms-auto">
+          @if (authService.isLoggedIn()) {
+          <li class="nav-item dropdown user-dropdown" style="position: relative;">
+            <a class="nav-link d-flex align-items-center" href="#" (click)="toggleMenu($event)">
+              <div
+                style="width: 38px; height: 38px; background-color: #d93025; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem;">
+                {{ getUserInitial() }}
+              </div>
+            </a>
+            @if (menuOpen()) {
+            <div class="dropdown-menu dropdown-menu-end show navbar-dropdown position-absolute z-3"
+              style="right:0; top: 48px; display:block;" (click)="$event.stopPropagation()">
+              <div class="dropdown-header text-center">
+                <p class="mb-1 mt-3 fw-semibold">{{ authService.currentUser()?.name || 'User' }}</p>
+                <p class="fw-light text-muted mb-0">{{ authService.currentUser()?.email || '' }}</p>
+              </div>
+              <a class="dropdown-item" routerLink="/profile" (click)="closeMenu()">Mi perfil</a>
+              <button class="dropdown-item" type="button" (click)="logout()">Cerrar sesión</button>
+            </div>
+            }
+          </li>
+          } @else {
+          <li class="nav-item">
+            <a routerLink="/register" class="btn btn-outline-dark fw-semibold px-3 py-1"
+              style="font-size:0.93rem; border-radius:8px;">Registrarse</a>
+          </li>
+          <li class="nav-item ms-2">
+            <a class="btn btn-outline-dark fw-semibold px-3 py-1" routerLink="/login"
+              style="font-size:0.95rem; color:#222;">Login</a>
+          </li>
+          }
+        </ul>
       </div>
     </nav>
   </header>
 
-  <!-- CONTENIDO -->
   <main class="flex-grow-1">
     <router-outlet></router-outlet>
   </main>
-
-  <!-- FOOTER -->
-  <footer class="py-5 mt-auto" style="background:white; border-top:1px solid #e5e5e5;">
-    <div class="container">
-
-      <div class="row mb-4">
-        <div class="col-md-3 mb-3">
-          <h6 class="fw-bold mb-3">About</h6>
-          <ul class="list-unstyled" style="line-height:2;">
-            <li><a href="#" class="text-dark text-decoration-none">About Change.org</a></li>
-            <li><a href="#" class="text-dark text-decoration-none">Impact</a></li>
-            <li><a href="#" class="text-dark text-decoration-none">Jobs</a></li>
-            <li><a href="#" class="text-dark text-decoration-none">Team</a></li>
-          </ul>
-        </div>
-
-        <div class="col-md-3 mb-3">
-          <h6 class="fw-bold mb-3">Community</h6>
-          <ul class="list-unstyled" style="line-height:2;">
-            <li><a href="#" class="text-dark text-decoration-none">Press</a></li>
-            <li><a href="#" class="text-dark text-decoration-none">Community Guidelines</a></li>
-          </ul>
-        </div>
-
-        <div class="col-md-3 mb-3">
-          <h6 class="fw-bold mb-3">Help</h6>
-          <ul class="list-unstyled" style="line-height:2;">
-            <li><a href="#" class="text-dark text-decoration-none">Help</a></li>
-            <li><a href="#" class="text-dark text-decoration-none">Guides</a></li>
-            <li><a href="#" class="text-dark text-decoration-none">Privacy</a></li>
-            <li><a href="#" class="text-dark text-decoration-none">Terms</a></li>
-          </ul>
-        </div>
-
-        <div class="col-md-3 mb-3">
-          <h6 class="fw-bold mb-3">Social media</h6>
-          <ul class="list-unstyled" style="line-height:2;">
-            <li><a href="#" class="text-dark text-decoration-none">X</a></li>
-            <li><a href="#" class="text-dark text-decoration-none">Facebook</a></li>
-            <li><a href="#" class="text-dark text-decoration-none">Instagram</a></li>
-          </ul>
-        </div>
-      </div>
-
-      <hr>
-
-      <div class="row align-items-center pt-3">
-        <div class="col-md-8">
-          <small class="text-muted">
-            © 2025, Change.org, PBC
-          </small>
-        </div>
-      </div>
-
-    </div>
-  </footer>
-
 </div>
