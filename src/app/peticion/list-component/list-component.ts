@@ -1,13 +1,12 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, inject, OnInit, signal, effect } from '@angular/core';
 import { PeticionService } from '../../services/peticion-service';
 import { AuthService } from '../../services/auth-service';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { Categoria, Peticion } from '../../models/peticion';
 import { CategoriasService } from '../../services/categorias-service';
 import { DatePipe, SlicePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SearchService } from '../../services/search.service';
-
 
 @Component({
   selector: 'app-list-component',
@@ -26,48 +25,78 @@ export class ListComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
   private searchService = inject(SearchService);
 
-  // Datos originales del servidor
+  // Datos originales
   peticiones = signal<Peticion[]>([]);
   categorias = signal<Categoria[]>([]);
   public cargando: boolean = true;
 
-  // Señales para los filtros vinculadas al HTML 
+  // Señales para los filtros
   filtroFirma = signal<string>('todas');
   filtroCategoria = signal<string>('todas');
 
-  // Lógica de filtrado 
-  // computed para actualizar los datos sin necesidad de recargar la página
+  // --- 1. NUEVAS VARIABLES PARA PAGINACIÓN ---
+  paginaActual = signal<number>(1); //
+  itemsPorPagina = 6; //
+
+  constructor() {
+    // Resetear a página 1 cuando cambie cualquier filtro o búsqueda
+    effect(() => {
+      this.peticionesFiltradas();
+      this.searchService.searchTerm();
+      this.paginaActual.set(1);
+    }, { allowSignalWrites: true });
+  }
+
+  // Lógica de filtrado (peticionesFiltradas)
   peticionesFiltradas = computed(() => {
     let resultado = this.peticiones();
-    const busqueda = this.searchService.searchTerm().toLowerCase(); // Obtener el texto del navbar
+    const busqueda = this.searchService.searchTerm().toLowerCase();
     
-    // Filtro por Título
     if (busqueda) {
-      resultado = resultado.filter(p => 
-        p.title.toLowerCase().includes(busqueda)
-      );
+      resultado = resultado.filter(p => p.title.toLowerCase().includes(busqueda));
     }
 
-    // Filtro por Estado de Firmas 
     if (this.filtroFirma() === 'con_firmas') {
       resultado = resultado.filter(p => (p.signeds ?? 0) > 0);
     } else if (this.filtroFirma() === 'sin_firmas') {
       resultado = resultado.filter(p => (p.signeds ?? 0) === 0);
     }
 
-    // Filtro por Categoría 
     if (this.filtroCategoria() !== 'todas') {
       resultado = resultado.filter(p => p.category_id === Number(this.filtroCategoria()));
     }
     return resultado;
   });
 
-  // Contador de resultados dinámico 
+  // --- 2. NUEVO COMPUTADO: TOTAL PÁGINAS ---
+  totalPaginas = computed(() => {
+    const totalItems = this.peticionesFiltradas().length; //
+    return Math.ceil(totalItems / this.itemsPorPagina); //
+  });
+
+  // --- 3. NUEVO COMPUTADO: ARRAY RECORTADO ---
+  peticionesPaginadas = computed(() => {
+    const pagina = this.paginaActual(); //
+    const lista = this.peticionesFiltradas(); //
+    const indiceInicio = (pagina - 1) * this.itemsPorPagina; //
+    const indiceFin = indiceInicio + this.itemsPorPagina; //
+    
+    return lista.slice(indiceInicio, indiceFin); //
+  });
+
   totalResultados = computed(() => this.peticionesFiltradas().length);
 
   ngOnInit(): void {
     this.getCategories();
     this.getPeticiones();
+  }
+
+  // --- 4. MÉTODO PARA CAMBIAR DE PÁGINA ---
+  irAPagina(pagina: number) {
+    if (pagina >= 1 && pagina <= this.totalPaginas()) { //
+      this.paginaActual.set(pagina); //
+      window.scrollTo({ top: 0, behavior: 'smooth' }); //
+    }
   }
 
   getPeticiones() {
@@ -78,8 +107,7 @@ export class ListComponent implements OnInit {
         this.cargando = false;
         this.cdr.markForCheck();
       },
-      error: (err) => {
-        console.error('Error al cargar peticiones:', err);
+      error: () => {
         this.cargando = false;
         this.cdr.markForCheck();
       }
