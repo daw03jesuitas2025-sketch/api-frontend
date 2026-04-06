@@ -23,18 +23,23 @@ export class LoginComponent {
   constructor(private auth: AuthService, private router: Router) { }
 
   login() {
-    this.errorMessage = ''; 
+    this.errorMessage = '';
     this.cdr.markForCheck();
     this.auth.login({ email: this.email, password: this.password })
       .subscribe({
         next: () => {
-          this.router.navigate(['/peticiones']);
+          // Preguntamos al servicio si el usuario que acaba de entrar es admin
+          if (this.auth.isAdmin()) {
+            this.router.navigate(['/admin']);
+          } else {
+            this.router.navigate(['/peticiones']);
+          }
         },
         error: (err: HttpErrorResponse) => {
           console.error('LOGIN ERROR', err);
           if (err.status === 401) {
             this.errorMessage = 'El email o la contraseña son incorrectos.';
-            this.password = ''; 
+            this.password = '';
           } else {
             this.errorMessage = err.error.message
           }

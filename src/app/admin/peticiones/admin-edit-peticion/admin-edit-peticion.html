@@ -1,0 +1,126 @@
+<section class="py-5 bg-light min-vh-100">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <h1 class="fw-bold mb-0 text-dark">Editar petición <small
+                    class="text-muted fs-5">#{{peticion()?.id}}</small></h1>
+            <button type="button" class="btn btn-outline-secondary fw-bold shadow-sm" (click)="cancelar()">
+                Cancelar
+            </button>
+        </div>
+
+        @if (cargandoDatos()) {
+        <div class="text-center py-5">
+            <div class="spinner-border text-danger"></div>
+            <p class="mt-3 text-muted">Cargando datos de la petición...</p>
+        </div>
+        } @else if (errorMessage()) {
+        <div class="alert alert-danger d-flex align-items-center justify-content-between shadow-sm">
+            <div><strong>Error:</strong> {{ errorMessage() }}</div>
+            <button type="button" class="btn btn-outline-danger btn-sm" (click)="errorMessage.set('')">Cerrar</button>
+        </div>
+        } @else {
+        <form class="d-flex flex-column p-md-5 mt-4 bg-white rounded shadow border" [formGroup]="itemForm"
+            (ngSubmit)="onSubmit()">
+
+            <div class="row">
+                <div class="col-lg-7">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Título</label>
+                        <input type="text" class="form-control" formControlName="title"
+                            placeholder="Título de la causa" />
+                        @if (itemForm.get('title')?.touched && itemForm.get('title')?.invalid) {
+                        <small class="text-danger">El título es obligatorio.</small>
+                        }
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Dirigida a</label>
+                        <input type="text" class="form-control" formControlName="destinatary"
+                            placeholder="Institución o persona" />
+                        @if (itemForm.get('destinatary')?.touched && itemForm.get('destinatary')?.invalid) {
+                        <small class="text-danger">El destinatario es obligatorio.</small>
+                        }
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Descripción</label>
+                        <textarea rows="8" class="form-control" formControlName="description"></textarea>
+                        @if (itemForm.get('description')?.touched && itemForm.get('description')?.invalid) {
+                        <small class="text-danger">La descripción es obligatoria.</small>
+                        }
+                    </div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Categoría de la petición</label>
+                        <select class="form-select" formControlName="category_id">
+                            <option value="">-- Selecciona una categoría --</option>
+                            @for (cat of categorias(); track cat.id) {
+                            <option [value]="cat.id">{{ cat.name }}</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Estado de la petición</label>
+                        <select class="form-select" formControlName="status">
+                            <option value="pending">PENDIENTE</option>
+                            <option value="accepted">ACEPTADA</option>
+                        </select>
+                    </div>
+
+                    <div class="mt-4 border-top pt-3">
+                        <h5 class="fw-bold">Imágenes actuales</h5>
+                        <div class="row g-2 mb-3">
+                            @if (peticion()?.files?.length > 0) {
+                            @for (file of peticion()?.files; track file.id) {
+                            <div class="col-4">
+                                <img [src]="'http://localhost:8000/storage/' + file.file_path"
+                                    class="img-fluid rounded border"
+                                    style="height: 80px; width: 100%; object-fit: cover;" />
+                            </div>
+                            }
+                            } @else {
+                            <p class="text-muted small ps-2">Sin imágenes previas.</p>
+                            }
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Subir nuevas fotos</label>
+                            <input class="form-control form-control-sm" type="file" (change)="onFilesSelected($event)"
+                                accept="image/*" multiple />
+                        </div>
+
+                        @if (previewsNuevas().length > 0) {
+                        <div class="mb-3">
+                            <p class="text-success small fw-bold mb-1">Nuevas previsualizaciones:</p>
+                            <div class="row g-1">
+                                @for (preview of previewsNuevas(); track preview) {
+                                <div class="col-3">
+                                    <img [src]="preview" class="img-fluid rounded border border-success"
+                                        style="height: 60px; width: 100%; object-fit: cover;" />
+                                </div>
+                                }
+                            </div>
+                            <button type="button" class="btn btn-link btn-sm text-danger p-0"
+                                (click)="removeNewFiles()">Limpiar selección</button>
+                        </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-3 mt-4 border-top pt-4">
+                <button type="submit" class="btn btn-danger btn-lg px-5 fw-bold"
+                    [disabled]="loading() || itemForm.invalid">
+                    @if (loading()) { <span class="spinner-border spinner-border-sm me-2"></span> Guardando... }
+                    @else { Guardar cambios }
+                </button>
+                <button type="button" class="btn btn-light btn-lg px-4" (click)="cancelar()"
+                    [disabled]="loading()">Cancelar</button>
+            </div>
+        </form>
+        }
+    </div>
+</section>

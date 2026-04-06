@@ -1,0 +1,77 @@
+<section class="py-5 bg-light min-vh-100">
+  <div class="container">
+
+    <div class="d-flex align-items-center mb-4 border-bottom pb-3">
+      <span class="badge bg-warning text-dark fs-5 me-3"><i class="bi bi-pencil-square"></i> Edición</span>
+      <h2 class="m-0 fw-bold">Editar Usuario <small class="text-muted fs-5">#{{ id() }}</small></h2>
+    </div>
+
+    @if (errorMessage()) {
+    <div class="alert alert-danger d-flex justify-content-between align-items-center shadow-sm">
+      <div><strong>Error:</strong> {{ errorMessage() }}</div>
+      <button class="btn btn-outline-danger btn-sm" (click)="errorMessage.set('')">Cerrar</button>
+    </div>
+    }
+
+    <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="card shadow-sm border-0 p-4 p-md-5">
+      <div class="row">
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label fw-bold">Nombre Completo</label>
+          <input formControlName="name" type="text" class="form-control" placeholder="Nombre del usuario" />
+          @if (userForm.get('name')?.touched && userForm.get('name')?.invalid) {
+          <small class="text-danger">El nombre es obligatorio.</small>
+          }
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label fw-bold">Correo Electrónico</label>
+          <input formControlName="email" type="email" class="form-control" placeholder="email@ejemplo.com" />
+          @if (userForm.get('email')?.touched && userForm.get('email')?.invalid) {
+          <small class="text-danger">El email es obligatorio y debe ser válido.</small>
+          }
+        </div>
+
+      </div>
+
+      <div class="row">
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label fw-bold">Rol del Sistema</label>
+          <select formControlName="role" class="form-select border-primary">
+            <option value="user">Usuario normal (user)</option>
+            <option value="admin">Administrador (admin)</option>
+          </select>
+          <div class="form-text text-danger fw-bold">
+            <i class="bi bi-exclamation-triangle me-1"></i>
+            Precaución: Dar rol de administrador da acceso total al panel.
+          </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label fw-bold">
+            Nueva Contraseña <span class="text-muted fw-normal">(Opcional)</span>
+          </label>
+          <input formControlName="password" type="password" class="form-control"
+            placeholder="Dejar en blanco para mantener la actual" />
+          <div class="form-text">Si escribes algo aquí, sobreescribirá su contraseña actual. Mínimo 6 caracteres.</div>
+        </div>
+
+      </div>
+
+      <hr class="my-4">
+
+      <div class="d-flex justify-content-end gap-2">
+        <a routerLink="/admin" class="btn btn-outline-dark px-4">Cancelar</a>
+        <button type="submit" [disabled]="userForm.invalid || loading()" class="btn btn-success px-5 fw-bold">
+          @if (loading()) {
+          <span class="spinner-border spinner-border-sm me-2"></span> Guardando...
+          } @else {
+          Guardar Cambios
+          }
+        </button>
+      </div>
+
+    </form>
+  </div>
+</section>

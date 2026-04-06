@@ -1,0 +1,75 @@
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="mb-4">
+      <a routerLink="/admin" class="btn btn-sm btn-dark">
+        &larr; Volver al Panel de Control
+      </a>
+    </div>
+
+    @if (loading()) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-danger" role="status"></div>
+      </div>
+    } @else if (!peticion()) {
+      <div class="alert alert-danger">Petición no encontrada en el sistema.</div>
+    } @else {
+      <div class="row">
+        <div class="col-lg-8">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="fw-bold m-0">{{ peticion()!.title }}</h1>
+            <span class="badge bg-primary">ID: {{ peticion()!.id }}</span>
+          </div>
+
+          <div class="alert alert-secondary d-flex gap-2">
+            <span class="fw-bold me-auto">ACCIONES DE ADMIN:</span>
+            <a class="btn btn-warning btn-sm" [routerLink]="['/admin/peticiones/edit', peticion()!.id]">Editar</a>
+            <button class="btn btn-danger btn-sm" (click)="deleteAdmin()">Eliminar permanentemente</button>
+          </div>
+
+          <div class="mb-4">
+            @if (peticion()?.files && peticion()?.files?.length! > 0) {
+              <div class="row g-3">
+                @for (file of peticion()?.files; track file.id) {
+                  <div class="col-12 col-md-6">
+                    <div class="rounded overflow-hidden shadow-sm border bg-white h-100">
+                      <img [src]="API_STORAGE + file.file_path" 
+                           class="img-fluid w-100"
+                           style="height: 300px; object-fit: cover;" 
+                           alt="Imagen petición" />
+                    </div>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="rounded overflow-hidden shadow-sm border mb-4">
+                <img src="assets/no-image.png" class="w-100" style="max-height: 420px; object-fit: cover;" />
+              </div>
+            }
+          </div>
+
+          <div class="bg-white p-4 rounded shadow-sm">
+            <h4 class="fw-bold mb-3">Descripción técnica</h4>
+            <p class="text-break" style="white-space: pre-line;">{{ peticion()!.description }}</p>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <div class="card shadow border-0">
+            <div class="card-body">
+              <h5 class="fw-bold">Detalles del Autor</h5>
+              <hr>
+              <p><strong>Nombre:</strong> {{ peticion()!.user?.name }}</p>
+              <p><strong>Email:</strong> {{ peticion()!.user?.email }}</p>
+              <p><strong>Firmas actuales:</strong> {{ peticion()!.signeds || 0 }}</p>
+              <p><strong>Estado:</strong> 
+                <span class="badge" [class.bg-success]="peticion()!.status === 'active'" [class.bg-warning]="peticion()!.status !== 'active'">
+                  {{ peticion()!.status }}
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</section>

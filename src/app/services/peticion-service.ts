@@ -56,7 +56,7 @@ export class PeticionService {
   }
 
   update(id: number, formData: FormData) {
-    formData.append('_method', 'PUT'); // [cite: 256]
+    formData.append('_method', 'PUT');
     return this.http.post<{ data: Peticion }>(`${this.API_URL}/${id}`, formData).pipe(
       tap(res => {
         this.#peticiones.update(list =>

@@ -33,7 +33,7 @@ export class AuthService {
       .post<LoginResponse>(`${this.api}/login`, credentials)
       .pipe(
         tap(res => {
-          console.log('LO QUE LLEGA DEL SERVIDOR:', res); 
+          console.log('LO QUE LLEGA DEL SERVIDOR:', res);
           this.storeTokens(res);
         }),
         switchMap(() => this.getProfile())
@@ -47,7 +47,7 @@ export class AuthService {
   getProfile() {
     return this.http.get<User>(`${this.api}/me`).pipe(
       tap(user => {
-        console.log('Usuario obtenido:', user); 
+        console.log('Usuario obtenido:', user);
         this.userSubject.next(user);
         this.currentUser.set(user);
         localStorage.setItem('user_data', JSON.stringify(user));
@@ -95,5 +95,9 @@ export class AuthService {
     return this.http.post<{ access_token: string }>(`${this.api}/refresh`, {}).pipe(
       tap(res => localStorage.setItem('access_token', res.access_token))
     );
+  }
+  // Comprueba si el usuario logueado tiene el rol de administrador.
+  isAdmin(): boolean {
+    return (this.currentUser() as any)?.role === 'admin';
   }
 }

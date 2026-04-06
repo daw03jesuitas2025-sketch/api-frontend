@@ -11,61 +11,55 @@ import { RegisterComponent } from './auth/register-component/register-component'
 import { ProfileComponent } from './auth/profile-component/profile-component';
 import { ListMine } from './peticion/list-mine/list-mine';
 import { FirmadasComponent } from './peticion/firmadas-component/firmadas-component';
+import { adminGuard } from './guards/admin-guard';
+import { PanelComponent } from './admin/panel/panel-component/panel-component';
+import { AdminEditPeticion} from './admin/peticiones/admin-edit-peticion/admin-edit-peticion';
+import { AdminShowPeticion } from './admin/peticiones/admin-show-peticion/admin-show-peticion';
+import { AdminEditUser } from './admin/users/admin-edit-user/admin-edit-user';
+import { AdminShowUser } from './admin/users/admin-show-user/admin-show-user';
 
 export const routes: Routes = [
-
   {
     path: '',
     component: PublicLayout,
     children: [
-      {
-        path: '',
-        component: HomePages
-      },
-      {
-        path: 'peticiones',
-        component: ListComponent
-      },
-      {
-        path: 'peticiones/editar/:id',
-        canActivate: [authGuard],
-        component: EditComponent
-      },
-      {
-        path: 'peticiones/:id',
-        component: ShowComponent
-      },
-      {
-        path: 'mispeticiones',
-        canActivate: [authGuard],
-        component: ListMine
-      },
-      {
-        path: 'misfirmas',
-        canActivate: [authGuard],
-        component: FirmadasComponent
-      },
-      {
-        path: 'create',
-        canActivate: [authGuard],
-        component: CreateComponent
-      },
-      {
-        path: 'login',
-        component: LoginComponent
-      },
-      {
-        path: 'register',
-        component: RegisterComponent
-      },
-      {
-        path: 'profile',
-        canActivate: [authGuard],
-        component: ProfileComponent
-      },
-      { path: '**', redirectTo: '' }
+      // --- RUTAS PÚBLICAS Y DE USUARIO ---
+      { path: '', component: HomePages },
+      { path: 'peticiones', component: ListComponent },
+      { path: 'peticiones/editar/:id', canActivate: [authGuard], component: EditComponent },
+      { path: 'peticiones/:id', component: ShowComponent },
+      { path: 'mispeticiones', canActivate: [authGuard], component: ListMine },
+      { path: 'misfirmas', canActivate: [authGuard], component: FirmadasComponent },
+      { path: 'create', canActivate: [authGuard], component: CreateComponent },
+      { path: 'login', component: LoginComponent },
+      { path: 'register', component: RegisterComponent },
+      { path: 'profile', canActivate: [authGuard], component: ProfileComponent },
 
+      // --- SECCIÓN ADMINISTRACIÓN (Prefijo /admin) ---
+      {
+        path: 'admin',
+        canActivate: [adminGuard],
+        children: [
+          // Dashboard principal
+          { path: '', component: PanelComponent },
+
+          // Gestión de Peticiones
+          { path: 'peticiones', component: PanelComponent }, // Lista
+          { path: 'peticiones/:id', component: AdminShowPeticion }, // Ver detalle
+          { path: 'peticiones/edit/:id', component: AdminEditPeticion }, // Editar
+
+          // Gestión de Usuarios
+          { path: 'users', component: PanelComponent }, // Lista
+          { path: 'users/:id', component: AdminShowUser }, // Ver detalle
+          { path: 'users/edit/:id', component: AdminEditUser }, // Editar
+
+          // Gestión de Categorías
+          { path: 'categorias', component: PanelComponent }
+        ]
+      },
+
+      // Redirección por defecto
+      { path: '**', redirectTo: '' }
     ]
   }
-
 ];

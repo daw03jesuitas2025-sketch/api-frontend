@@ -1,0 +1,247 @@
+<div class="container-fluid mt-4 bg-light min-vh-100">
+  <div class="row">
+    <div class="col-md-3 col-lg-2 mb-4">
+      <div class="card shadow-sm border-0 sticky-top" style="top: 20px;">
+        <div class="card-header bg-white border-0 py-3">
+          <h5 class="mb-0 fw-bold text-danger"><i class="bi bi-shield-lock me-2"></i>Admin</h5>
+        </div>
+        <div class="list-group list-group-flush p-2">
+          <button (click)="cambiarSeccion('peticiones')" [class.active]="seccionActiva() === 'peticiones'"
+            class="list-group-item list-group-item-action border-0 rounded-3 mb-1">
+            <i class="bi bi-file-earmark-text me-2"></i> Peticiones
+          </button>
+
+          <button (click)="cambiarSeccion('categorias')" [class.active]="seccionActiva() === 'categorias'"
+            class="list-group-item list-group-item-action border-0 rounded-3 mb-1">
+            <i class="bi bi-tags me-2"></i> Categorías
+          </button>
+
+          <button (click)="cambiarSeccion('users')" [class.active]="seccionActiva() === 'users'"
+            class="list-group-item list-group-item-action border-0 rounded-3 mb-1">
+            <i class="bi bi-people me-2"></i> Usuarios
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-9 col-lg-10">
+
+      @if (seccionActiva() === 'peticiones') {
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h4 fw-bold text-dark">Gestión de Peticiones</h2>
+        <span class="badge bg-danger rounded-pill px-3">Total: {{ peticiones().length }}</span>
+      </div>
+
+      @if (cargando()) {
+      <div class="text-center my-5">
+        <div class="spinner-border text-danger" role="status"></div>
+      </div>
+      } @else {
+      <div class="card border-0 shadow-sm overflow-hidden">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light text-muted small text-uppercase">
+              <tr>
+                <th class="ps-4">ID</th>
+                <th>Título</th>
+                <th>Autor</th>
+                <th>Categoría</th>
+                <th class="text-center">Estado</th>
+                <th class="text-center">Firmas</th>
+                <th class="text-end pe-4">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (peticion of peticiones(); track peticion.id) {
+              <tr>
+                <td class="ps-4 fw-bold text-muted">{{ peticion.id }}</td>
+                <td>
+                  <div class="fw-semibold text-dark">{{ peticion.title | slice:0:50 }}...</div>
+                </td>
+                <td>
+                  <span class="small text-muted"><i class="bi bi-person me-1"></i>{{ peticion.user?.name ||
+                    'Desconocido' }}</span>
+                </td>
+                <td>
+                  <span class="badge bg-secondary text-white px-3 py-2 rounded-pill" style="font-weight: 500;">
+                    {{ peticion.category?.name || 'Sin categoría' }}
+                  </span>
+                </td>
+                <td class="text-center">
+                  <span class="badge rounded-pill px-2 py-1" [ngClass]="{
+    'bg-success-subtle text-success border border-success': peticion.status === 'active' || peticion.status === 'accepted',
+    'bg-warning-subtle text-warning border border-warning': peticion.status === 'pending',
+    'bg-danger-subtle text-danger border border-danger': peticion.status === 'closed'
+}">
+                    {{ peticion.status | uppercase }}
+                  </span>
+                </td>
+                <td class="text-center">
+                  <span class="badge bg-light text-success border">{{ peticion.signed_users_count || 0 }}</span>
+                </td>
+                <td class="text-end pe-4">
+                  <div class="btn-group shadow-sm">
+                    <a [routerLink]="['/admin/peticiones', peticion.id]" class="btn btn-sm btn-white border"
+                      title="Ver"><i class="bi bi-eye text-primary"></i></a>
+                    <a [routerLink]="['/admin/peticiones/edit', peticion.id]" class="btn btn-sm btn-white border"
+                      title="Editar"><i class="bi bi-pencil text-warning"></i></a>
+                    <button (click)="eliminarPeticion(peticion.id)" class="btn btn-sm btn-white border" title="Borrar">
+                      <i class="bi bi-trash3 text-danger"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              } @empty {
+              <tr>
+                <td colspan="5" class="text-center py-5 text-muted">No hay peticiones registradas.</td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+      }
+      }
+
+      @if (seccionActiva() === 'users') {
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h4 fw-bold text-dark"><i class="bi bi-people text-success me-2"></i>Usuarios</h2>
+        <span class="badge bg-success rounded-pill px-3">Total: {{ usuarios().length }}</span>
+      </div>
+
+      @if (cargandoUsuarios()) {
+      <div class="text-center my-5">
+        <div class="spinner-border text-success" role="status"></div>
+      </div>
+      } @else {
+      <div class="card border-0 shadow-sm overflow-hidden">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light text-muted small text-uppercase">
+              <tr>
+                <th class="ps-4">ID</th>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th class="text-center">Rol</th>
+                <th class="text-center">Peticiones</th>
+                <th class="text-center">Firmas</th>
+                <th class="text-end pe-4">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (user of usuarios(); track user.id) {
+              <tr>
+                <td class="ps-4 fw-bold text-muted">{{ user.id }}</td>
+                <td class="fw-semibold">{{ user.name }}</td>
+                <td>{{ user.email }}</td>
+                <td class="text-center">
+                  <span class="badge rounded-pill" [ngClass]="user.role === 'admin' ? 'bg-danger' : 'bg-primary'">
+                    {{ user.role | uppercase }}
+                  </span>
+                </td>
+                <td class="text-center">{{ user.peticiones_count || 0 }}</td>
+                <td class="text-center">{{ user.firmas_count || 0 }}</td>
+                <td class="text-end pe-4">
+                  <div class="btn-group shadow-sm">
+                    <a [routerLink]="['/admin/users', user.id]" class="btn btn-sm btn-white border" title="Ver"><i
+                        class="bi bi-eye-fill text-primary"></i></a>
+                    <a [routerLink]="['/admin/users/edit', user.id]" class="btn btn-sm btn-white border"
+                      title="Editar"><i class="bi bi-pencil-fill text-warning"></i></a>
+                    <button (click)="eliminarUsuario(user.id)" class="btn btn-sm btn-white border" title="Borrar">
+                      <i class="bi bi-trash3-fill text-danger"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              } @empty {
+              <tr>
+                <td colspan="7" class="text-center py-5 text-muted">No hay usuarios registrados.</td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+      }
+      }
+
+      @if (seccionActiva() === 'categorias') {
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h4 fw-bold text-dark"><i class="bi bi-tags text-warning me-2"></i>Categorías</h2>
+        <span class="badge bg-warning text-dark rounded-pill px-3">Total: {{ categorias().length }}</span>
+      </div>
+
+      <!-- FORMULARIO CREAR / EDITAR -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+          <h6 class="fw-bold mb-3">
+            {{ editandoCategoria() ? '✏️ Editando: ' + editandoCategoria().name : '➕ Nueva categoría' }}
+          </h6>
+
+          @if (errorCategorias()) {
+          <div class="alert alert-danger py-2">{{ errorCategorias() }}</div>
+          }
+
+          <div class="d-flex gap-2">
+            <input type="text" class="form-control" placeholder="Nombre de la categoría" [value]="nuevaCategoriaName()"
+              (input)="nuevaCategoriaName.set($any($event.target).value)" />
+            <button class="btn btn-warning fw-bold px-4" (click)="guardarCategoria()">
+              {{ editandoCategoria() ? 'Actualizar' : 'Crear' }}
+            </button>
+            @if (editandoCategoria()) {
+            <button class="btn btn-outline-secondary" (click)="cancelarEdicion()">Cancelar</button>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- TABLA -->
+      @if (cargandoCategorias()) {
+      <div class="text-center my-5">
+        <div class="spinner-border text-warning" role="status"></div>
+      </div>
+      } @else {
+      <div class="card border-0 shadow-sm overflow-hidden">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light text-muted small text-uppercase">
+              <tr>
+                <th class="ps-4">ID</th>
+                <th>Nombre</th>
+                <th class="text-center">Peticiones</th>
+                <th class="text-end pe-4">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (cat of categorias(); track cat.id) {
+              <tr>
+                <td class="ps-4 fw-bold text-muted">{{ cat.id }}</td>
+                <td class="fw-semibold">{{ cat.name }}</td>
+                <td class="text-center">
+                  <span class="badge bg-light text-dark border">{{ cat.petitions_count || 0 }}</span>
+                </td>
+                <td class="text-end pe-4">
+                  <div class="btn-group shadow-sm">
+                    <button (click)="editarCategoria(cat)" class="btn btn-sm btn-white border" title="Editar">
+                      <i class="bi bi-pencil text-warning"></i>
+                    </button>
+                    <button (click)="eliminarCategoria(cat.id)" class="btn btn-sm btn-white border" title="Borrar">
+                      <i class="bi bi-trash3 text-danger"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              } @empty {
+              <tr>
+                <td colspan="4" class="text-center py-5 text-muted">No hay categorías registradas.</td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+      }
+      }
+    </div>
+  </div>
+</div>

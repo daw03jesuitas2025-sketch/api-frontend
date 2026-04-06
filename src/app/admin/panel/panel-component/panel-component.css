@@ -1,0 +1,28 @@
+/* Botón activo en el sidebar con el rojo corporativo */
+.list-group-item.active {
+    background-color: #ed2d2d !important;
+    border-color: #ed2d2d !important;
+    font-weight: 600;
+}
+
+/* Botones de acción en la tabla */
+.btn-white {
+    background-color: #ffffff;
+    transition: all 0.2s;
+}
+
+.btn-white:hover {
+    background-color: #f8f9fa;
+}
+
+/* Redondear tarjetas */
+.card {
+    border-radius: 12px;
+}
+
+/* Estilo de la tabla */
+.table thead th {
+    border-top: none;
+    font-size: 0.75rem;
+    letter-spacing: 0.05rem;
+}

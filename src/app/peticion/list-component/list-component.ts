@@ -35,8 +35,8 @@ export class ListComponent implements OnInit {
   filtroCategoria = signal<string>('todas');
 
   // --- 1. NUEVAS VARIABLES PARA PAGINACIÓN ---
-  paginaActual = signal<number>(1); //
-  itemsPorPagina = 6; //
+  paginaActual = signal<number>(1); 
+  itemsPorPagina = 6; 
 
   constructor() {
     // Resetear a página 1 cuando cambie cualquier filtro o búsqueda
@@ -70,18 +70,18 @@ export class ListComponent implements OnInit {
 
   // --- 2. NUEVO COMPUTADO: TOTAL PÁGINAS ---
   totalPaginas = computed(() => {
-    const totalItems = this.peticionesFiltradas().length; //
-    return Math.ceil(totalItems / this.itemsPorPagina); //
+    const totalItems = this.peticionesFiltradas().length; 
+    return Math.ceil(totalItems / this.itemsPorPagina); 
   });
 
   // --- 3. NUEVO COMPUTADO: ARRAY RECORTADO ---
   peticionesPaginadas = computed(() => {
-    const pagina = this.paginaActual(); //
-    const lista = this.peticionesFiltradas(); //
-    const indiceInicio = (pagina - 1) * this.itemsPorPagina; //
-    const indiceFin = indiceInicio + this.itemsPorPagina; //
+    const pagina = this.paginaActual(); 
+    const lista = this.peticionesFiltradas(); 
+    const indiceInicio = (pagina - 1) * this.itemsPorPagina; 
+    const indiceFin = indiceInicio + this.itemsPorPagina; 
     
-    return lista.slice(indiceInicio, indiceFin); //
+    return lista.slice(indiceInicio, indiceFin); 
   });
 
   totalResultados = computed(() => this.peticionesFiltradas().length);
@@ -93,9 +93,9 @@ export class ListComponent implements OnInit {
 
   // --- 4. MÉTODO PARA CAMBIAR DE PÁGINA ---
   irAPagina(pagina: number) {
-    if (pagina >= 1 && pagina <= this.totalPaginas()) { //
+    if (pagina >= 1 && pagina <= this.totalPaginas()) { 
       this.paginaActual.set(pagina); //
-      window.scrollTo({ top: 0, behavior: 'smooth' }); //
+      window.scrollTo({ top: 0, behavior: 'smooth' }); 
     }
   }
 
